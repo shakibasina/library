@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقسیم محتوای HTML</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        #inputHtml {
+            width: 90%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        #outputList li {
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            padding: 10px;
+            list-style-type: none; /* حذف شماره‌گذاری پیش‌فرض */
+            counter-increment: page-counter; /* شمارنده برای شماره صفحه */
+        }
+        #outputList li::before {
+            content: "صفحه " counter(page-counter); /* نمایش شماره صفحه */
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>اضافه کردن کتاب</h1>
+    <input type="text" name="title" id="title" placeholder="نام کتاب (انگلیسی)">
+
+    <p>محتوای HTML خام کتاب خود را (بدون تگ‌های <html>, <head>, <body>) در کادر زیر وارد کنید یا از دکمه بارگذاری فایل استفاده نمایید. سپس روی دکمه "تقسیم‌بندی" کلیک کنید.</p>
+    <textarea id="inputHtml" placeholder="محتوای HTML خام را اینجا وارد کنید... مثلا: <h1>فصل اول</h1><p>متن پاراگراف...</p><h2>بخش ۱.۱</h2><p>ادامه متن...</p>"></textarea>
+    <br>
+    <label for="fileInput">یا یک فایل HTML بارگذاری کنید: </label>
+    <input type="file" id="fileInput" accept=".html,.htm">
+    <br><br>
+    <label for="chunkSize">تعداد تگ در هر صفحه: </label>
+    <input type="number" id="chunkSize" value="20" min="1">
+    <br><br>
+    <button onclick="processHtml()">تقسیم‌بندی</button>
+
+    <h2>خروجی تقسیم‌شده:</h2>
+    <ul id="outputList" style="counter-reset: page-counter;">
+        </ul>
+
+    <script>
+        // دریافت المان‌ها
+        const inputHtmlTextArea = document.getElementById('inputHtml');
+        const fileInput = document.getElementById('fileInput');
+        const outputList = document.getElementById('outputList');
+        const chunkSizeInput = document.getElementById('chunkSize');
+
+        // مدیریت بارگذاری فایل
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    inputHtmlTextArea.value = e.target.result;
+                }
+                reader.onerror = function(e) {
+                    alert('خطا در خواندن فایل!');
+                    console.error("FileReader error:", e);
+                }
+                reader.readAsText(file);
+            }
+        });
+
+        function processHtml() {
+            const book_title = document.getElementById("title").value;
+            const rawHtml = inputHtmlTextArea.value.trim();
+            const chunkSize = parseInt(chunkSizeInput.value, 10) || 20; // اندازه هر بخش، پیش‌فرض ۲۰
+
+            if (!rawHtml) {
+                alert("لطفاً محتوای HTML را وارد کنید یا یک فایل بارگذاری نمایید.");
+                return;
+            }
+            if (!book_title){
+                alert("لطفا عنوان کتاب را وارد کنید");
+                return;
+            }
+
+            // پاک کردن خروجی قبلی
+            outputList.innerHTML = '';
+
+            // ۱. پارس کردن رشته HTML به یک DocumentFragment
+            // از template استفاده می‌کنیم که روش امن‌تر و استانداردتری برای پارس کردن قطعه HTML است
+            const template = document.createElement('template');
+            template.innerHTML = rawHtml; // مرورگر خودش HTML را تمیز و معتبر می‌کند
+
+            // ۲. استخراج تمام تگ‌های سطح اول (فرزندان مستقیم template)
+            // NodeList حاصل را به آرایه تبدیل می‌کنیم تا راحت‌تر بتوان با آن کار کرد
+            const allNodes = Array.from(template.content.childNodes);
+
+            // فقط المان‌ها را در نظر می‌گیریم (گره‌های متنی خالی بین تگ‌ها را حذف می‌کنیم)
+            const allElements = allNodes.filter(node => node.nodeType === Node.ELEMENT_NODE);
+
+            if (allElements.length === 0) {
+                 alert("هیچ تگ معتبری در ورودی یافت نشد.");
+                 return;
+            }
+            console.log(allElements);
+            
+            // ۳. تقسیم المان‌ها به بخش‌های (chunk) با اندازه مشخص
+            for (let i = 0; i < allElements.length; i += chunkSize) {
+                console.log(i);
+                
+                const chunk = allElements.slice(i, i + chunkSize);
+
+                // ۴. ایجاد یک آیتم لیست (li) برای هر بخش
+                const listItem = document.createElement('li');
+                listItem.className = "page"
+
+                // ۵. اضافه کردن تگ‌های هر بخش به آیتم لیست مربوطه
+                chunk.forEach(element => {
+                    // از cloneNode(true) استفاده می‌کنیم تا المان اصلی دستکاری نشود
+                    // و اگر قرار باشد در جای دیگری هم استفاده شود، مشکلی پیش نیاید.
+                    listItem.appendChild(element.cloneNode(true));
+                });
+
+                // ۶. اضافه کردن آیتم لیست به لیست خروجی (ul)
+                outputList.appendChild(listItem);
+            }
+
+            console.log(`محتوا به ${Math.ceil(allElements.length / chunkSize)} صفحه تقسیم شد.`);
+            localStorage.setItem(`content_${book_title}`, outputList.innerHTML);
+            books_list = localStorage.getItem("books_list");
+            if (books_list) {
+                const parsedData = JSON.parse(books_list)
+                parsedData.push(book_title)
+                books_list = localStorage.setItem("books_list", JSON.stringify(parsedData));
+            }else{
+                books_list = localStorage.setItem("books_list", JSON.stringify([book_title]));
+            }
+        }
+    </script>
+
+</body>
+</html>

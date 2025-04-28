@@ -1,0 +1,126 @@
+@font-face {
+    font-family: Vazir;
+    src: url(../fonts/Vazir-Regular.woff);
+}
+@font-face {
+    font-family: Vazir-Bold;
+    src: url(../fonts/Vazir-Bold.woff);
+    font-weight: bold;
+}
+@font-face {
+    font-family: Vazir-Black;
+    src: url(../fonts/Vazir-Black.woff);
+    font-weight: bolder;
+}
+.vazir{
+    font-family: Vazir;
+}
+.extrabold{
+    font-family: Vazir-Black;
+    font-weight: 800;
+}
+
+body.main{
+    background-image: url("../img/body.jpeg");
+}
+header{
+    width: 100%;
+    padding: 50px;
+    background: rgba( 255, 255, 255, 0 );
+    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 15.5px );
+    -webkit-backdrop-filter: blur( 15.5px );
+    border-radius: 10px;
+    z-index: 10;
+}
+header .row{
+    position: relative;
+    z-index: 100;
+}
+@keyframes top-down {
+    0%{
+        transform: translateY(-10px);
+    }
+    100%{
+        transform: translateY(10px);
+    }
+}
+.go-librari{
+    animation: top-down 0.7s ease-in infinite alternate;
+}
+.reports .container{
+    background: rgba( 255, 255, 255, 0 );
+    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 15.5px );
+    -webkit-backdrop-filter: blur( 15.5px );
+    border-radius: 10px;
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
+    color: white;
+}
+.card{
+    background: rgba( 255, 255, 255, 0 );
+    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 15.5px );
+    -webkit-backdrop-filter: blur( 15.5px );
+    border-radius: 10px;
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
+    color: white;
+}
+.card-image img{
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+/* show */
+.book-container {
+    perspective: 1500px; /* Creates the 3D perspective */
+}
+
+.book {
+    position: relative;
+    width: 600px;
+    height: 800px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    transform-style: preserve-3d; /* Ensures children are in 3D space */
+}
+
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fdfdfd;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    backface-visibility: hidden; /* Hides the back of the element */
+    transform-origin: left center; /* Rotation origin on the left edge */
+    transition: transform 0.8s ease-in-out, box-shadow 0.8s ease-in-out, z-index 0s 0.8s;
+    z-index: 1; /* Initially stack pages */
+    overflow: auto; /* Enable scrolling for long content */
+}
+
+.page:nth-child(odd) {
+    transform: translateZ(1px); /* Slightly offset odd pages */
+}
+
+.page:nth-child(even) {
+    transform: translateX(10px) translateZ(1px); /* Slightly offset even pages */
+}
+
+.page.flipped {
+    transform: rotateY(-180deg) translateX(0);
+    box-shadow: -5px 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10; /* Bring flipped page to the front */
+    transition: transform 0.8s ease-in-out, box-shadow 0.8s ease-in-out, z-index 0s 0s;
+}
+
+.page.flipping {
+    transform: rotateY(-150deg) translateX(0); /* Intermediate state */
+    box-shadow: -3px 2px 5px rgba(0, 0, 0, 0.15);
+    z-index: 9; /* Keep the flipping page above others */
+}
