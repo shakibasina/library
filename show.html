@@ -3,27 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="book_title" content="test">
+    <meta name="book_title" content="defualt">
     <title>خواندن کتاب تست</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="vazir">
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="book-container">
-                <ul class="book">
-                    
-                </ul>
-                <div class="d-flex justify-content-between mt-3">
-                    <button class="btn btn-secondary" id="prev-page">قبلی</button>
-                    <button class="btn btn-primary" id="next-page">بعدی</button>
-                </div>
-            </div>
-        </div>
+<body class="vazir" dir="rtl">
+    <style>
+html {
+  height: 200%;
+}
+body {
+  background: black;
+  margin: 0;
+  width: 100%;
+  height: 200%;
+  text-align: right !important;
+}
+
+h1 {
+  text-align: center;
+}
+
+.scene {
+  width: 45%;
+  height: 100%;
+  margin: 5% 5% 5% 50%;
+  
+  perspective: 1000px;
+}
+
+.book {
+  position: relative;
+  width: 100%;
+  height: 200%;
+  
+  transform-style: preserve-3d;
+}
+
+.page {
+  cursor: pointer;
+  position: absolute;
+  color: black;
+  width: 100%;
+  height: 100%;
+
+  transition: 1.5s transform;
+  transform: translateZ(-1px);
+  transform-style: preserve-3d;  
+  transform-origin: left center;
+}
+.front,
+.back {
+  position: absolute;
+  
+  width: 100%;
+  height: 100%;
+  padding: 10% 5% 5%;
+  box-sizing: border-box;
+  
+  backface-visibility: hidden;
+  background: linear-gradient(to bottom left, #fff, #ccc);;
+  background: linear-gradient(to bottom right, #fff, #ccc);
+}
+.back {
+  transform: rotateY(180deg);
+}
+
+.page.active {
+  z-index: 1;
+  transform: translateZ(0);
+}
+.page.flipped {
+  transform: translateZ(0) rotateY(-180deg);
+}
+.page.flipped:last-of-type {
+  z-index: 1;
+}
+
+p {
+  margin: 0 0 0.1em;
+  text-indent: 1em;
+}
+
+.qr {
+  margin: 50px auto;
+  max-width: 50%;
+}
+.qr img {
+  display: block;
+}
+
+
+/* iPads (portrait) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait) {
+  .scene {
+        width: 90%;
+        height: 90%;
+        margin: 5%;
+    }
+}
+    </style>
+    <div class="scene">
+        <article class="book">
+        
+        </article>
     </div>
+<script src="assets/js/jquery-3.7.1.min.js"></script>
+<script src="assets/js/hammer.min.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+<script>
+    const bookContainer = document.querySelector('.book'); 
+    
+    function add_pages(){
+        const urlParams = new URLSearchParams(window.location.search)
+        const book_name = urlParams.get("book_name")
+        
+        if (book_name){
+            document.querySelector("meta[name=book_title]").setAttribute("content", book_name)
+            const content = localStorage.getItem(`content_${book_name}`)
+            if (content){
+                console.log(content);
+                
+                bookContainer.innerHTML = content
+            }
+        }
+    }
+    add_pages()
+
+    const bookTitle = document.querySelector('meta[name="book_title"]').getAttribute("content");
+    const lastPageKey = `last_page_${bookTitle}`;
+    const pagesReadKey = `pages_read_${bookTitle}`;
+    var currentPage = parseInt(localStorage.getItem(lastPageKey)) || 0;
+
+    $('.book').children().eq(currentPage).addClass("active")
+    $('.book')
+    .on('click', '.active', nextPage)
+    .on('click', '.flipped', prevPage);
+
+    var hammertime = new Hammer($('.book')[0]);
+    hammertime.on("swipeleft", nextPage);
+    hammertime.on("swiperight", prevPage);
+
+    function prevPage() {
+    
+    $('.flipped')
+        .last()
+        .removeClass('flipped')
+        .addClass('active')
+        .siblings('.page')
+        .removeClass('active');
+        currentPage -= 1
+        localStorage.setItem(lastPageKey, currentPage.toString());
+        localStorage.setItem(pagesReadKey, currentPage.toString());
+    }
+    function nextPage() {
+    
+    $('.active')
+        .removeClass('active')
+        .addClass('flipped')
+        .next('.page')
+        .addClass('active')
+        .siblings();
+
+        currentPage += 1
+        localStorage.setItem(lastPageKey, currentPage.toString());
+        localStorage.setItem(pagesReadKey, currentPage.toString());
+    }
+</script>
 </body>
 </html>
-
