@@ -96,26 +96,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function update_progress(){
         progress.innerHTML = ""
         const books_list = JSON.parse(localStorage.getItem("books_list"));
-        for (book of books_list) {
-            var readPages = JSON.parse(localStorage.getItem(`pages_read_${book}`));
-            console.log(readPages);
-        
-            if (readPages > 0){
+        if (books_list){
+            for (book of books_list) {
+                var readPages = JSON.parse(localStorage.getItem(`pages_read_${book}`));
+                console.log(readPages);
+            
+                if (readPages > 0){
 
-                const pagesGoal = localStorage.getItem("pages_goal");
-                var in100 = (readPages / pagesGoal) * 100;
-                if (in100 > 100){
-                    in100 = 100;
-                }
-                console.log("Read: "+readPages);
-                console.log("Goal: "+pagesGoal);
-                console.log("%: "+in100);
+                    const pagesGoal = localStorage.getItem("pages_goal");
+                    var in100 = (readPages / pagesGoal) * 100;
+                    if (in100 > 100){
+                        in100 = 100;
+                    }
+                    console.log("Read: "+readPages);
+                    console.log("Goal: "+pagesGoal);
+                    console.log("%: "+in100);
 
-                var progress_element = `
-                    <div class="progress-bar" role="progressbar" style="width: ${in100}%" aria-valuenow="${readPages}" aria-valuemin="0" aria-valuemax="${pagesGoal}">${book}</div>
-                `;
-                progress.innerHTML += progress_element;
-            } 
+                    var progress_element = `
+                        <div class="progress-bar" role="progressbar" style="width: ${in100}%" aria-valuenow="${readPages}" aria-valuemin="0" aria-valuemax="${pagesGoal}">${book}</div>
+                    `;
+                    progress.innerHTML += progress_element;
+                } 
+            }
         }
     }
     
